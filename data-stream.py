@@ -73,7 +73,7 @@ class StreamReader(object):
 
 				change = self.update(et, self.t)
 
-				p = sum(self.is_closed)
+				p = float(sum(self.is_closed))/len(self.is_closed)
 				Kt = 3 * p
 				Tt = 0
 				if self.tot_wedges > 0:
@@ -141,7 +141,7 @@ class StreamReader(object):
 		return len(nt), nt
 
 if __name__ == '__main__':
-	StreamReader("data2.dat", 500, 500).start_stream()
+	StreamReader("data2.dat", 500, 30000).start_stream()
 	#a = Edge(1,2)
 	#b = Edge(2,3)
 	#c = Wedge(a,b)
