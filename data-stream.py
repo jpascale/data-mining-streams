@@ -1,5 +1,6 @@
 import random
 from datetime import datetime
+import math
 
 class Edge(object):
 	def __init__(self, x, y):
@@ -30,8 +31,12 @@ class Wedge(object):
 		self.second = second
 
 	def is_closed_by(self, et):
-		return self.second.y == et.x and et.y == self.first.x
-		## or self.first.x == et.x and self.second.y == et.y
+		return self.second.y == et.x and et.y == self.first.x or self.first.x == et.x and self.second.y == et.y
+
+	def __str__(self):
+		return "[" + str(self.first) + "->" + str(self.second) + "]"
+
+	__repr__ = __str__
 
 class StreamReader(object):
 
@@ -61,13 +66,22 @@ class StreamReader(object):
 					break
 
 				self.t = self.t + 1
+				print "Processing Et = " + str(self.t)
 
 				line = line.strip().split()
 				et = Edge(int(line[0]), int(line[1]))
 
 				self.update(et, self.t)
 
-		print self.edge_res
+				p = sum(self.is_closed)
+				Kt = 3 * p
+				Tt = None
+				if self.tot_wedges > 0:
+					Tt = ((p * math.pow(self.t, 2))/float((self.se * (self.se-1)))) * self.tot_wedges
+				print "Kt = " + str(Kt) + " , Tt = " + str(Tt) + " , total_wedges " + str(self.tot_wedges) 
+
+		#print self.edge_res
+		#print self.wedge_res
 
 	def update(self, et, t):
 		
@@ -118,4 +132,4 @@ class StreamReader(object):
 		return len(nt), nt
 
 if __name__ == '__main__':
-	StreamReader("data.dat", 50, 50).start_stream()
+	StreamReader("data.dat", 100, 100).start_stream()
