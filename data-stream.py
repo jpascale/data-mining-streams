@@ -21,7 +21,7 @@ class Edge(object):
 		return "(" + str(self.x) + "," + str(self.y) + ")"
 
 	def forms_wedge(self, other):
-		return self.y == other.x or self.x == other.y #or self.y == other.y or self.x == other.x ##
+		return self.y == other.x or self.x == other.y or self.y == other.y or self.x == other.x ##
 
 	__repr__ = __str__
 
@@ -31,7 +31,7 @@ class Wedge(object):
 		self.second = second
 
 	def is_closed_by(self, et):
-		return (self.second.y == et.x and et.y == self.first.x) or (self.first.x == et.x and self.second.y == et.y)
+		return (self.second.y == et.x and et.y == self.first.x) #or (self.first.x == et.x and self.second.y == et.y)
 
 	def __str__(self):
 		return "[" + str(self.first) + "->" + str(self.second) + "]"
@@ -83,6 +83,7 @@ class StreamReader(object):
 				if self.t % 500 == 0:
 					print self.wedge_res 
 
+		return Tt
 		#print self.edge_res
 		#print self.wedge_res
 
@@ -141,7 +142,12 @@ class StreamReader(object):
 		return len(nt), nt
 
 if __name__ == '__main__':
-	StreamReader("data2.dat", 500, 30000).start_stream()
+	arr = []
+	for x in range(20):
+		print "ASDASDASD " + str(x)
+		arr.append(StreamReader("data.dat", 500, 2600).start_stream())
+	print arr
+	print sum(arr)/len(arr)
 	#a = Edge(1,2)
 	#b = Edge(2,3)
 	#c = Wedge(a,b)
