@@ -10,7 +10,7 @@ class Edge(object):
 	def __eq__(self, other):
 		"""Override the default Equals behavior"""
 		if isinstance(other, self.__class__):
-			return self.x == other.x and self.y == other.y
+			return (self.x == other.x and self.y == other.y) #or (self.x == other.y and self.y == other.x) ## 
 		return False
 
 	def __ne__(self, other):
@@ -21,7 +21,7 @@ class Edge(object):
 		return "(" + str(self.x) + "," + str(self.y) + ")"
 
 	def forms_wedge(self, other):
-		return self.y == other.x or other.y == self.x
+		return self.y == other.x or self.x == other.y #or self.y == other.y or self.x == other.x ##
 
 	__repr__ = __str__
 
@@ -31,7 +31,7 @@ class Wedge(object):
 		self.second = second
 
 	def is_closed_by(self, et):
-		return self.second.y == et.x and et.y == self.first.x or self.first.x == et.x and self.second.y == et.y
+		return (self.second.y == et.x and et.y == self.first.x) or (self.first.x == et.x and self.second.y == et.y)
 
 	def __str__(self):
 		return "[" + str(self.first) + "->" + str(self.second) + "]"
@@ -71,14 +71,17 @@ class StreamReader(object):
 				line = line.strip().split()
 				et = Edge(int(line[0]), int(line[1]))
 
-				self.update(et, self.t)
+				change = self.update(et, self.t)
 
 				p = sum(self.is_closed)
 				Kt = 3 * p
-				Tt = None
+				Tt = 0
 				if self.tot_wedges > 0:
 					Tt = ((p * math.pow(self.t, 2))/float((self.se * (self.se-1)))) * self.tot_wedges
-				print "Kt = " + str(Kt) + " , Tt = " + str(Tt) + " , total_wedges " + str(self.tot_wedges) 
+				print "Kt = " + str(Kt) + " , Tt = " + str(round(float(Tt))) + " , total_wedges " + str(self.tot_wedges) + ", change " + str(change)
+
+				if self.t % 500 == 0:
+					print self.wedge_res 
 
 		#print self.edge_res
 		#print self.wedge_res
@@ -95,9 +98,10 @@ class StreamReader(object):
 
 		for i in range(self.se):
 			x = random.uniform(0.0, 1.0)
-			if x <= 1.0/t:
+			if x <= 1.0/float(t):
 				self.edge_res[i] = et
 				change = True
+				#break, Esto creo que no va
 		#################### /reservoir edge
 
 		if change:
@@ -107,29 +111,38 @@ class StreamReader(object):
 			if new_wedges > 0: #Added by me, if not could divide by zero or enter inexistent array index
 				for i in range(self.sw):
 					x = random.uniform(0.0, 1.0)
-					if x <= float(new_wedges) / float(self.tot_wedges):
-						urand = random.randint(0, len(nt)-1)
+					if x <= (float(new_wedges) / float(self.tot_wedges)):
+						urand = random.randint(0, len(nt)-1) # Pick one element of nt randomly
 						self.wedge_res[i] = nt[urand]
 						self.is_closed[i] = False
+				return True
+		else:
+			return False
 
 	def update_total_wedges(self):
 		tot_wedges = 0
 		for i in range(self.se):
 			for j in range(self.se):
 				if i < j:
-					if self.edge_res[i].forms_wedge(self.edge_res[j]):
-						tot_wedges += 1
+					if self.edge_res[i] is not None and self.edge_res[j] is not None:
+						if self.edge_res[i].forms_wedge(self.edge_res[j]):
+							tot_wedges += 1
 		self.tot_wedges = tot_wedges
 
 	#new wedges are the ones who involve et
 	def determine_new_wedges(self, et):
 		nt = []
 		for i in range(self.se):
-			if et.y == self.edge_res[i].x:
-				nt.append(Wedge(et, self.edge_res[i]))
-			elif self.edge_res[i].y == et.x:
-				nt.append(Wedge(self.edge_res[i], et))
+			if self.edge_res[i] is not None:	
+				if et.y == self.edge_res[i].x:
+					nt.append(Wedge(et, self.edge_res[i]))
+				elif self.edge_res[i].y == et.x:
+					nt.append(Wedge(self.edge_res[i], et))
 		return len(nt), nt
 
 if __name__ == '__main__':
-	StreamReader("data.dat", 100, 100).start_stream()
+	StreamReader("data2.dat", 500, 500).start_stream()
+	#a = Edge(1,2)
+	#b = Edge(2,3)
+	#c = Wedge(a,b)
+	#print c.is_closed_by(Edge(1,3))
