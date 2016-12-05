@@ -21,7 +21,7 @@ class Edge(object):
 		return "(" + str(self.x) + "," + str(self.y) + ")"
 
 	def forms_wedge(self, other):
-		return self.y == other.x or self.x == other.y or self.y == other.y or self.x == other.x ##
+		return self.y == other.x or self.x == other.y #or self.y == other.y or self.x == other.x ##
 
 	__repr__ = __str__
 
@@ -31,7 +31,7 @@ class Wedge(object):
 		self.second = second
 
 	def is_closed_by(self, et):
-		return (self.second.y == et.x and et.y == self.first.x) #or (self.first.x == et.x and self.second.y == et.y)
+		return (self.second.y == et.x and et.y == self.first.x) or (self.first.x == et.x and self.second.y == et.y)
 
 	def __str__(self):
 		return "[" + str(self.first) + "->" + str(self.second) + "]"
@@ -73,7 +73,7 @@ class StreamReader(object):
 
 				change = self.update(et, self.t)
 
-				p = float(sum(self.is_closed))/len(self.is_closed)
+				p = self.get_p()#float(sum(self.is_closed))/len(self.is_closed)
 				Kt = 3 * p
 				Tt = 0
 				if self.tot_wedges > 0:
@@ -86,6 +86,20 @@ class StreamReader(object):
 		return Tt
 		#print self.edge_res
 		#print self.wedge_res
+
+	def get_p(self):
+		trues = falses = 0
+		for i in range(self.sw):
+			if self.wedge_res is not None:
+				if self.is_closed[i]:
+					trues += 1
+				else:
+					falses += 1
+
+		if falses == 0 and trues == 0:
+			return 0
+
+		return float(trues) / float(falses + trues)
 
 	def update(self, et, t):
 		
@@ -142,13 +156,14 @@ class StreamReader(object):
 		return len(nt), nt
 
 if __name__ == '__main__':
-	arr = []
-	for x in range(20):
-		print "ASDASDASD " + str(x)
-		arr.append(StreamReader("data.dat", 500, 2600).start_stream())
-	print arr
-	print sum(arr)/len(arr)
+	#arr = []
+	#for x in range(20):
+		#print "ASDASDASD " + str(x)
+		#arr.append(StreamReader("data.dat", 500, 2600).start_stream())
+	#print arr
+	#print sum(arr)/len(arr)
 	#a = Edge(1,2)
 	#b = Edge(2,3)
 	#c = Wedge(a,b)
 	#print c.is_closed_by(Edge(1,3))
+	print StreamReader("data.dat", 500, 2600).start_stream()
